@@ -471,14 +471,3 @@ Expected: Drafted answers with confidence scores, low-confidence ones flagged fo
 | Container App shows old environment variables | Create a new revision: Containers → Edit and deploy → Create |
 
 ---
-
-## Hackathon Submission Checklist
-
-- [ ] Public GitHub repo created and all files pushed
-- [ ] README.md is complete
-- [ ] SECURITY.md is complete
-- [ ] MIT LICENSE present
-- [ ] Demo video recorded (3 min, following script in README §Demo)
-- [ ] Project submitted at the Agents League portal, linked to **Enterprise Agents** challenge
-- [ ] Posted in Discord `#agentsleague` channel mentioning Foundry IQ + Work IQ usage
-- [ ] Tagged for **Best Use of IQ Tools** award in submission
