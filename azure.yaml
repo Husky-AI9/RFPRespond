@@ -1,0 +1,11 @@
+name: rfp-respond
+metadata:
+  template: rfp-respond@1.0.0
+services:
+  mcp-server:
+    project: ./server
+    host: containerapp
+    language: ts
+    docker:
+      path: ./server/Dockerfile
+      context: ./server

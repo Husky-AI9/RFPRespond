@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.2",
+  "id": "4e784495-0bea-4b7f-976c-cffd0bb06b62",
+  "developer": {
+    "name": "RFPRespond",
+    "websiteUrl": "https://github.com/rfprespond",
+    "privacyUrl": "https://github.com/rfprespond",
+    "termsOfUseUrl": "https://github.com/rfprespond"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "RFPRespond",
+    "full": "RFPRespond — AI RFP Response Agent"
+  },
+  "description": {
+    "short": "Turn RFPs into cited, reviewed responses in minutes.",
+    "full": "RFPRespond uses Foundry IQ knowledge retrieval and Work IQ people signals to automatically draft answers to RFP and security questionnaire questions — with citations, confidence scores, and SME routing — all inside Microsoft 365 Copilot Chat."
+  },
+  "accentColor": "#0078D4",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "rfprespondAgent",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": []
+}

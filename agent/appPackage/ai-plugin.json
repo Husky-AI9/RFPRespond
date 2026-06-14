@@ -1,0 +1,190 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+  "schema_version": "v2.4",
+  "name_for_human": "RFPRespond Tools",
+  "namespace": "rfprespond",
+  "description_for_human": "MCP tools for parsing RFPs, retrieving grounded answers via Foundry IQ, routing questions to SMEs via Work IQ, and compiling DOCX responses.",
+  "description_for_model": "Use these tools to: 1) parse an RFP PDF into questions (parseRfp), 2) retrieve cited answers from the knowledge base (retrieveAnswer), 3) find subject-matter experts (findSme), 4) assign review tasks in Planner (assignToSme), 5) compile and upload the final DOCX response (compileResponse). Always retrieve before answering. Always cite sources.",
+  "functions": [
+    {
+      "name": "parseRfp",
+      "description": "Parse an RFP PDF from SharePoint into a structured list of questions grouped by section.",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$.questions",
+          "properties": {
+            "title": "$.id",
+            "subtitle": "$.section"
+          }
+        }
+      }
+    },
+    {
+      "name": "retrieveAnswer",
+      "description": "Retrieve a grounded, cited answer for an RFP question from the company knowledge base using Foundry IQ semantic search. Returns confidence score — flag for SME review if below 0.6.",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.questionId",
+            "subtitle": "$.confidence",
+            "url": "$.citations[0].url"
+          }
+        }
+      }
+    },
+    {
+      "name": "findSme",
+      "description": "Find the best subject-matter expert for a topic using Work IQ people signals (Graph People API and recent document insights).",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.displayName",
+            "subtitle": "$.rationale"
+          }
+        }
+      }
+    },
+    {
+      "name": "assignToSme",
+      "description": "Create a Microsoft Planner task assigning an RFP question to a subject-matter expert for review and approval.",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.taskId",
+            "subtitle": "$.assignedTo",
+            "url": "$.taskUrl"
+          }
+        }
+      }
+    },
+    {
+      "name": "compileResponse",
+      "description": "Compile all drafted answers into a formatted DOCX and upload to the SharePoint RFPCorpus/Responses/ library. Returns the SharePoint URL.",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.fileName",
+            "subtitle": "$.totalAnswers",
+            "url": "$.sharePointUrl"
+          }
+        }
+      }
+    }
+  ],
+  "runtimes": [
+    {
+      "type": "RemoteMCPServer",
+      "auth": {
+        "type": "None"
+      },
+      "run_for_functions": [
+        "parseRfp",
+        "retrieveAnswer",
+        "findSme",
+        "assignToSme",
+        "compileResponse"
+      ],
+      "spec": {
+        "url": "https://rfp-respond-mcp.blackflower-6673b87b.westus2.azurecontainerapps.io/mcp",
+        "mcp_tool_description": {
+          "tools": [
+            {
+              "name": "parseRfp",
+              "description": "Parse an RFP PDF from SharePoint into a structured list of questions.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "fileUrl": { "type": "string", "description": "SharePoint download URL for the RFP PDF" },
+                  "accessToken": { "type": "string", "description": "Graph access token for file download" }
+                },
+                "required": ["fileUrl", "accessToken"]
+              }
+            },
+            {
+              "name": "retrieveAnswer",
+              "description": "Retrieve a grounded, cited answer for an RFP question via Foundry IQ. Returns confidence score — flag for SME review if below 0.6.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "question": { "type": "string", "description": "The RFP question to answer" },
+                  "questionId": { "type": "string", "description": "Optional question ID for tracking" }
+                },
+                "required": ["question"]
+              }
+            },
+            {
+              "name": "findSme",
+              "description": "Find the best subject-matter expert for a topic using Work IQ people signals (Graph People API and document insights).",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "topic": { "type": "string", "description": "Topic or keyword to find an expert for" },
+                  "accessToken": { "type": "string", "description": "Graph access token (People.Read scope)" }
+                },
+                "required": ["topic", "accessToken"]
+              }
+            },
+            {
+              "name": "assignToSme",
+              "description": "Create a Microsoft Planner task assigning an RFP question to an SME for review.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "questionId": { "type": "string", "description": "RFP question identifier" },
+                  "question": { "type": "string", "description": "Full text of the question" },
+                  "userId": { "type": "string", "description": "Entra object ID of the SME" },
+                  "planId": { "type": "string", "description": "Planner plan ID (falls back to PLANNER_PLAN_ID env var)" },
+                  "accessToken": { "type": "string", "description": "Graph access token (Tasks.ReadWrite scope)" }
+                },
+                "required": ["questionId", "question", "userId", "accessToken"]
+              }
+            },
+            {
+              "name": "compileResponse",
+              "description": "Compile all drafted RFP answers into a formatted DOCX and upload to SharePoint.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "rfpTitle": { "type": "string", "description": "Title of the RFP" },
+                  "answers": {
+                    "type": "array",
+                    "description": "Array of drafted answers",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionId": { "type": "string" },
+                        "section": { "type": "string" },
+                        "question": { "type": "string" },
+                        "answer": { "type": "string" },
+                        "citations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": { "type": "string" },
+                              "url": { "type": "string" },
+                              "excerpt": { "type": "string" }
+                            }
+                          }
+                        },
+                        "confidence": { "type": "number" },
+                        "needsReview": { "type": "boolean" }
+                      }
+                    }
+                  },
+                  "sharePointSiteId": { "type": "string", "description": "SharePoint site ID" },
+                  "accessToken": { "type": "string", "description": "Graph access token" }
+                },
+                "required": ["rfpTitle", "answers", "sharePointSiteId", "accessToken"]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

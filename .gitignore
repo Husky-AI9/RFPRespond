@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+*.js.map
+
+# Environment files — never commit these
+agent/env/.env.local
+agent/env/.env.*.user
+server/.env
+server/.env.local
+.env
+.env.local
+
+# Azure Developer CLI
+.azure/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
