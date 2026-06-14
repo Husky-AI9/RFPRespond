@@ -29,7 +29,7 @@ Keep a notepad open and fill these in as you complete each step:
 | `DA_CLIENT_SECRET` | <DA_CLIENT_SECRET> | Secret ID : <DA_SECRET_ID>
 | `SEARCH_KEY` | <SEARCH_KEY>|
 | `ACR_LOGIN_SERVER` | rfprespondacr.azurecr.io|
-| `MCP_SERVER_URL` | https://rfp-respond-mcp.blackflower-6673b87b.westus2.azurecontainerapps.io|
+| `MCP_SERVER_URL` | |
 | `KV_NAME` | kv-rfprespond |
 | `TEAMS_APP_ID` | |
 OAuth client registration ID:
@@ -328,7 +328,6 @@ After deployment, open the Container App → **Overview** → copy **Application
 ### 5h — Verify the server is running
 
 In your browser, open: `https://<MCP_SERVER_URL>/health`
-https://rfp-respond-mcp.blackflower-6673b87b.westus2.azurecontainerapps.io/health
 Expected response:
 ```json
 {"status":"ok","version":"1.0.0"}
@@ -369,7 +368,7 @@ Also open `agent/appPackage/ai-plugin.json` and replace any `${{MCP_SERVER_URL}}
 On your local machine, open PowerShell and run:
 
 ```powershell
-cd "c:\Users\Kurst\Downloads\Research\Microsoft"
+cd "c:\Users\UserName\Downloads\Research\Microsoft"
 $pkg = "agent\appPackage"
 Compress-Archive -Path "$pkg\manifest.json","$pkg\declarativeAgent.json","$pkg\ai-plugin.json","$pkg\color.png","$pkg\outline.png" -DestinationPath agent\rfp-respond-app.zip -Force
 ```
@@ -385,7 +384,7 @@ Compress-Archive -Path "$pkg\manifest.json","$pkg\declarativeAgent.json","$pkg\a
 
 2. Left sidebar → **Tools** → **OAuth client registration** → **+ New OAuth client registration**
    - Registration name: `RFPRespond MCP`
-   - Base URL: `https://rfp-respond-mcp.blackflower-6673b87b.westus2.azurecontainerapps.io`
+   - Base URL: `MCP_APP_URL`
    - **Client ID:** `DA_APP_ID` — the `RFPRespond-DA` app (Copilot is the OAuth *client*)
    - **Client secret:** `DA_CLIENT_SECRET`
    - **Authorization endpoint:** `https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/authorize`
